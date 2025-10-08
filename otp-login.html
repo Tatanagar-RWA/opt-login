@@ -24,12 +24,12 @@
 
 <script>
   const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBOSeKvIqs2FNqu3zOopPETZ8-fvA1YJZI",
+    authDomain: "atanagar-rwa-login-page.firebaseapp.com",
+    projectId: "tatanagar-rwa-login-page",
+    storageBucket: "tatanagar-rwa-login-page.firebasestorage.app",
+    messagingSenderId: "497276840057",
+    appId: "1:497276840057:web:e08f8f42695fa250874ca8"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -38,7 +38,7 @@
   let allowedNumbers = [];
 
   // Load allowed numbers from Google Sheet JSON
-  fetch("YOUR_GOOGLE_APPS_SCRIPT_URL")
+  fetch("https://script.google.com/macros/s/AKfycbzMCAXl5Jrfxg-zzbs5eJU17jpZOebmyA2bVL7ZvB_-wsMkcO-qOu1WBUfH6uYEha2dqA/exec")
     .then(res => res.json())
     .then(data => {
       allowedNumbers = data;
@@ -75,7 +75,7 @@
         const phone = user.phoneNumber;
         if (allowedNumbers.includes(phone)) {
           document.getElementById('result').innerText = "Login successful!";
-          window.location.href = "https://sites.google.com/view/your-site/members";
+          window.location.href = "https://www.rwa-tatanagar.com/virtual-assistant";
         } else {
           document.getElementById('result').innerText = "Access denied: not authorized.";
           auth.signOut();
