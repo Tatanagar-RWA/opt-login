@@ -16,14 +16,13 @@
 <h2>Login with OTP</h2>
 <input type="text" id="phoneNumber" placeholder="+91XXXXXXXXXX" /><br>
 <div id="recaptcha-container"></div>
-<button id="sendBtn" disabled onclick="sendOTP()">Send OTP</button><br>
+<button onclick="sendOTP()">Send OTP</button><br>
 <input type="text" id="otp" placeholder="Enter OTP" />
 <button onclick="verifyOTP()">Verify</button>
 
 <p id="result"></p>
 
 <script>
-  // ======= Firebase Configuration =======
   const firebaseConfig = {
     apiKey: "AIzaSyBOSeKvIqs2FNqu3zOopPETZ8-fvA1YJZI",
     authDomain: "atanagar-rwa-login-page.firebaseapp.com",
@@ -37,79 +36,52 @@
   const auth = firebase.auth();
 
   let allowedNumbers = [];
-  let allowedNumbersLoaded = false;
 
-  // ======= Load allowed numbers from Google Sheet =======
+  // Load allowed numbers from Google Sheet JSON
   fetch("https://script.google.com/macros/s/AKfycbzMCAXl5Jrfxg-zzbs5eJU17jpZOebmyA2bVL7ZvB_-wsMkcO-qOu1WBUfH6uYEha2dqA/exec")
     .then(res => res.json())
     .then(data => {
       allowedNumbers = data;
-      allowedNumbersLoaded = true;
       console.log("Allowed Numbers Loaded:", allowedNumbers);
-      document.getElementById('sendBtn').disabled = false;
     })
-    .catch(err => {
-      console.error("Error loading allowed numbers:", err);
-      document.getElementById('result').innerText = "Error loading allowed numbers.";
-    });
+    .catch(err => console.error("Error loading allowed numbers:", err));
 
-  // ======= reCAPTCHA =======
   window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
     'size': 'normal'
   });
   recaptchaVerifier.render();
 
-  // ======= Send OTP =======
   function sendOTP() {
-    if (!allowedNumbersLoaded) {
-      document.getElementById('result').innerText = "Please wait, loading allowed numbers...";
-      return;
-    }
-
     const phoneNumber = document.getElementById('phoneNumber').value.trim();
-    console.log("Attempting OTP for:", phoneNumber);
-
     if (!allowedNumbers.includes(phoneNumber)) {
       document.getElementById('result').innerText = "Access denied: number not registered.";
       return;
     }
-
     auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
       .then(confirmationResult => {
         window.confirmationResult = confirmationResult;
         document.getElementById('result').innerText = "OTP sent!";
       })
       .catch(error => {
-        console.error(error);
-        document.getElementById('result').innerText = "Error sending OTP: " + error.message;
+        document.getElementById('result').innerText = error.message;
       });
   }
 
-  // ======= Verify OTP =======
   function verifyOTP() {
     const otp = document.getElementById('otp').value.trim();
-
-    if (!otp) {
-      document.getElementById('result').innerText = "Enter the OTP.";
-      return;
-    }
-
     window.confirmationResult.confirm(otp)
       .then(result => {
         const user = result.user;
         const phone = user.phoneNumber;
-        console.log("Verified phone:", phone);
-
         if (allowedNumbers.includes(phone)) {
           document.getElementById('result').innerText = "Login successful!";
-          window.location.href = "https://sites.google.com/rwa-tatanagar.com/virtual-assistant";
+          window.location.href = "https://www.rwa-tatanagar.com/virtual-assistant";
         } else {
           document.getElementById('result').innerText = "Access denied: not authorized.";
           auth.signOut();
         }
       })
       .catch(error => {
-        console.error(error);
         document.getElementById('result').innerText = "Invalid OTP!";
       });
   }
